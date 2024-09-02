@@ -66,14 +66,19 @@ export class ExtensionServeContentRestricted implements IServerExtension {
       });
     }
 
-    //if the Share hasn't been passed in and set in the constructor, then check for it in the url query params...
-    if(!this.sourceShare) {
-      const url = new URL(req.url);
-      this.sourceShare = url.searchParams.get("share") ? url.searchParams.get("share") as string : ''
+    //check for 'share' in query params...
+    const url = new URL(req.url);
+    let requestShare = url.searchParams.get("share") ? url.searchParams.get("share") as string : ''
+    if(requestShare !== '') {
+      //let's add the '+' back in at the beginning of the share address, as it will have been replaced by ' ' when using searchParams.get() above...see here - https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams#preserving_plus_signs
+      requestShare = requestShare.replace(' ','+')
+    }
+    else {
+      //if there has been no share passed in through query params, let's check for a sourceShare (set in the constructor) and assign that to this request...
       if(this.sourceShare) {
-        //let's add the '+' back in at the beginning of the share address, as it will have been replaced by ' ' when using searchParams.get() above...see here - https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams#preserving_plus_signs
-        this.sourceShare = this.sourceShare.replace(' ','+')
+        requestShare = this.sourceShare
       }
+      //if we can't find a share from query params or sourceShare, then throw an error...
       else {
         console.log('no share')
         return new Response("configuration error (share)", {
@@ -85,7 +90,7 @@ export class ExtensionServeContentRestricted implements IServerExtension {
       }
     }
     
-    const replica = this.peer?.getReplica(this.sourceShare);
+    const replica = this.peer?.getReplica(requestShare);
 
     if(!replica) {
       return new Response("configuration error (replica)", {
