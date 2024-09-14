@@ -1,7 +1,8 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
 # Project specific
-data/*
+src/known_shares.json
+src/data/*
 fly.toml
 
 # IDEs and editors
