@@ -8,7 +8,7 @@ new Earthstar.Server([
             console.log(`Creating replica for ${address}...`);
 
             return new Earthstar.Replica({
-                driver: new Earthstar.ReplicaDriverFs(address, "./data")
+                driver: new Earthstar.ReplicaDriverFs(address, `./data/${address}`)
             })
         }
     }),
